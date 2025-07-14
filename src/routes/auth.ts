@@ -46,7 +46,10 @@ router.post("/register", async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
+    return;
   }
+  // Ensure a return statement in all code paths
+  return;
 });
 
 router.post("/login", async (req, res) => {
@@ -72,7 +75,7 @@ router.post("/login", async (req, res) => {
       expiresIn: "7d",
     });
 
-    res.json({
+    return res.json({
       token,
       user: {
         id: user._id,
@@ -83,7 +86,7 @@ router.post("/login", async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error" });
   }
 });
 

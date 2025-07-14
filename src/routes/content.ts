@@ -16,9 +16,9 @@ router.get("/:page", async (req, res) => {
       return res.status(404).json({ message: "Page not found" });
     }
 
-    res.json(content);
+    return res.json(content);
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error" });
   }
 });
 

@@ -47,9 +47,9 @@ router.get("/post/:slug", async (req, res) => {
       return res.status(404).json({ message: "Post not found" });
     }
 
-    res.json(post);
+    return res.json(post);
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error" });
   }
 });
 
@@ -128,9 +128,9 @@ router.put("/:id", authenticateToken, async (req: AuthRequest, res) => {
       return res.status(404).json({ message: "Post not found" });
     }
 
-    res.json(post);
+    return res.json(post);
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error" });
   }
 });
 
@@ -143,9 +143,9 @@ router.delete("/:id", authenticateToken, async (req: AuthRequest, res) => {
       return res.status(404).json({ message: "Post not found" });
     }
 
-    res.json({ message: "Post deleted successfully" });
+    return res.json({ message: "Post deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error" });
   }
 });
 

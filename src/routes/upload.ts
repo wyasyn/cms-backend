@@ -52,8 +52,10 @@ router.post(
       );
 
       streamifier.createReadStream(req.file.buffer).pipe(stream);
+      // Ensure a response is always returned
+      return;
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      return res.status(500).json({ message: "Server error" });
     }
   }
 );
@@ -99,9 +101,9 @@ router.post(
       });
 
       const results = await Promise.all(uploadPromises);
-      res.json({ images: results });
+      return res.json({ images: results });
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      return res.status(500).json({ message: "Server error" });
     }
   }
 );

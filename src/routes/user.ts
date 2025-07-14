@@ -53,9 +53,9 @@ router.post(
       await user.save();
 
       const { password: _, ...userWithoutPassword } = user.toObject();
-      res.status(201).json(userWithoutPassword);
+      return res.status(201).json(userWithoutPassword);
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      return res.status(500).json({ message: "Server error" });
     }
   }
 );
@@ -79,9 +79,9 @@ router.put(
         return res.status(404).json({ message: "User not found" });
       }
 
-      res.json(user);
+      return res.json(user);
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      return res.status(500).json({ message: "Server error" });
     }
   }
 );
@@ -99,9 +99,9 @@ router.delete(
         return res.status(404).json({ message: "User not found" });
       }
 
-      res.json({ message: "User deleted successfully" });
+      return res.json({ message: "User deleted successfully" });
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      return res.status(500).json({ message: "Server error" });
     }
   }
 );
