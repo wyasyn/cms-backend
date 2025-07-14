@@ -1,4 +1,4 @@
-import { Router, Request, Response, NextFunction } from "express";
+import { Router, Request, Response } from "express";
 import { body, param, query } from "express-validator";
 import Skill from "../models/Skill";
 import { authenticateToken, AuthRequest } from "../middlewares/auth";

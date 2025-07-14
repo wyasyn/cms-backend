@@ -1,13 +1,10 @@
+import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User";
-import { authenticateToken, AuthRequest } from "../middlewares/auth";
-import { loginLimiter } from "../middlewares/loginLimiter";
-import { Router, Request, Response } from "express";
+import { AuthRequest } from "../middlewares/auth";
 
-const router = Router();
-
-router.post("/register", async (req: Request, res: Response) => {
+export const registerUser = async (req: Request, res: Response) => {
   try {
     const { username, email, password } = req.body;
 
@@ -47,9 +44,9 @@ router.post("/register", async (req: Request, res: Response) => {
     console.error("Register error:", error);
     return res.status(500).json({ message: "Server error" });
   }
-});
+};
 
-router.post("/login", loginLimiter, async (req: Request, res: Response) => {
+export const loginUser = async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
 
@@ -59,7 +56,6 @@ router.post("/login", loginLimiter, async (req: Request, res: Response) => {
         .json({ message: "Username and password are required" });
     }
 
-    // Find by username or email
     const user = await User.findOne({
       $or: [{ username }, { email: username }],
       isActive: true,
@@ -69,25 +65,19 @@ router.post("/login", loginLimiter, async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Check for JWT secret
     const secret = process.env.JWT_SECRET;
     if (!secret) {
-      console.error("JWT_SECRET is not defined in environment variables.");
+      console.error("JWT_SECRET is not defined.");
       return res.status(500).json({ message: "Internal server error" });
     }
 
-    // Sign token
-    const token = jwt.sign({ id: user._id }, secret, {
-      expiresIn: "7d",
-    });
+    const token = jwt.sign({ id: user._id }, secret, { expiresIn: "7d" });
 
-    // Successful login
     return res.status(200).json({
       message: "Login successful",
       token,
@@ -103,31 +93,25 @@ router.post("/login", loginLimiter, async (req: Request, res: Response) => {
     console.error("Login error:", error);
     return res.status(500).json({ message: "Server error" });
   }
-});
+};
 
-router.get(
-  "/me",
-  authenticateToken,
-  async (req: AuthRequest, res: Response) => {
-    try {
-      if (!req.user) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
-
-      return res.status(200).json({
-        user: {
-          id: req.user._id,
-          username: req.user.username,
-          email: req.user.email,
-          role: req.user.role,
-          profile: req.user.profile ?? null,
-        },
-      });
-    } catch (error) {
-      console.error("Error in /me route:", error);
-      return res.status(500).json({ message: "Server error" });
+export const getCurrentUser = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
-  }
-);
 
-export default router;
+    return res.status(200).json({
+      user: {
+        id: req.user._id,
+        username: req.user.username,
+        email: req.user.email,
+        role: req.user.role,
+        profile: req.user.profile ?? null,
+      },
+    });
+  } catch (error) {
+    console.error("Error in /me route:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
