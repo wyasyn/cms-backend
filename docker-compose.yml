@@ -1,0 +1,38 @@
+services:
+  mongodb:
+    image: mongodb/mongodb-community-server:6.0.18-ubi9
+    container_name: mongodb-portfolio
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password123
+      # MONGO_INITDB_DATABASE is optional - databases are created automatically
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - app-network
+
+  # Optional: Add your Express app here
+  # express-app:
+  #   build: .
+  #   container_name: express-portfolio-app
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - mongodb
+  #   environment:
+  #     - MONGODB_URI=mongodb://admin:password123@mongodb:27017/portfolio?authSource=admin
+  #   networks:
+  #     - app-network
+
+volumes:
+  mongodb_data:
+  mongodb_config:
+
+networks:
+  app-network:
+    driver: bridge
