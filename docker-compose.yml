@@ -1,7 +1,7 @@
 services:
   mongodb:
     image: mongodb/mongodb-community-server:6.0.18-ubi9
-    container_name: mongodb-portfolio
+    container_name: mongodb-portfolio-cms
     restart: unless-stopped
     ports:
       - "27017:27017"
