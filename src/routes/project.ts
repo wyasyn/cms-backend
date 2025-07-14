@@ -1,11 +1,11 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import Project from "../models/Project";
 import { authenticateToken, AuthRequest } from "../middlewares/auth";
 
 const router = Router();
 
 // Get all projects (public - published only)
-router.get("/", async (req, res) => {
+router.get("/", async (req: Request, res: Response) => {
   try {
     const { category, featured, page = 1, limit = 10 } = req.query;
     const filter: any = { status: "published" };
@@ -36,7 +36,7 @@ router.get("/", async (req, res) => {
 });
 
 // Get single project (public)
-router.get("/:id", async (req, res) => {
+router.get("/:id", async (req: Request, res: Response) => {
   try {
     const project = await Project.findOne({
       _id: req.params.id,
@@ -54,38 +54,42 @@ router.get("/:id", async (req, res) => {
 });
 
 // Get all projects for admin (admin/editor)
-router.get("/admin/all", authenticateToken, async (req: AuthRequest, res) => {
-  try {
-    const { status, category, page = 1, limit = 10 } = req.query;
-    const filter: any = {};
+router.get(
+  "/admin/all",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { status, category, page = 1, limit = 10 } = req.query;
+      const filter: any = {};
 
-    if (status) filter.status = status;
-    if (category) filter.category = category;
+      if (status) filter.status = status;
+      if (category) filter.category = category;
 
-    const projects = await Project.find(filter)
-      .populate("createdBy", "username profile")
-      .sort({ createdAt: -1 })
-      .limit(Number(limit))
-      .skip((Number(page) - 1) * Number(limit));
+      const projects = await Project.find(filter)
+        .populate("createdBy", "username profile")
+        .sort({ createdAt: -1 })
+        .limit(Number(limit))
+        .skip((Number(page) - 1) * Number(limit));
 
-    const total = await Project.countDocuments(filter);
+      const total = await Project.countDocuments(filter);
 
-    res.json({
-      projects,
-      pagination: {
-        page: Number(page),
-        limit: Number(limit),
-        total,
-        pages: Math.ceil(total / Number(limit)),
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
+      res.json({
+        projects,
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          pages: Math.ceil(total / Number(limit)),
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
   }
-});
+);
 
 // Create project (admin/editor)
-router.post("/", authenticateToken, async (req: AuthRequest, res) => {
+router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const projectData = {
       ...req.body,
@@ -107,36 +111,44 @@ router.post("/", authenticateToken, async (req: AuthRequest, res) => {
 });
 
 // Update project (admin/editor)
-router.put("/:id", authenticateToken, async (req: AuthRequest, res) => {
-  try {
-    const project = await Project.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    }).populate("createdBy", "username profile");
+router.put(
+  "/:id",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const project = await Project.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true,
+      }).populate("createdBy", "username profile");
 
-    if (!project) {
-      return res.status(404).json({ message: "Project not found" });
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+
+      return res.json(project);
+    } catch (error) {
+      return res.status(500).json({ message: "Server error" });
     }
-
-    return res.json(project);
-  } catch (error) {
-    return res.status(500).json({ message: "Server error" });
   }
-});
+);
 
 // Delete project (admin/editor)
-router.delete("/:id", authenticateToken, async (req: AuthRequest, res) => {
-  try {
-    const project = await Project.findByIdAndDelete(req.params.id);
+router.delete(
+  "/:id",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const project = await Project.findByIdAndDelete(req.params.id);
 
-    if (!project) {
-      return res.status(404).json({ message: "Project not found" });
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+
+      return res.json({ message: "Project deleted successfully" });
+    } catch (error) {
+      return res.status(500).json({ message: "Server error" });
     }
-
-    return res.json({ message: "Project deleted successfully" });
-  } catch (error) {
-    return res.status(500).json({ message: "Server error" });
   }
-});
+);
 
 export default router;

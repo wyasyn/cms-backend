@@ -21,5 +21,5 @@ export const errorHandler = (
     return res.status(400).json({ message: "Duplicate entry" });
   }
 
-  res.status(500).json({ message: "Internal server error" });
+  return res.status(500).json({ message: "Internal server error" });
 };

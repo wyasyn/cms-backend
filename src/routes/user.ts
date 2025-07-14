@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import User from "../models/User";
 import {
@@ -14,7 +14,7 @@ router.get(
   "/",
   authenticateToken,
   requireRole(["admin"]),
-  async (req: AuthRequest, res) => {
+  async (req: AuthRequest, res: Response) => {
     try {
       const users = await User.find({}, "-password").sort({ createdAt: -1 });
       res.json(users);
@@ -29,7 +29,7 @@ router.post(
   "/",
   authenticateToken,
   requireRole(["admin"]),
-  async (req: AuthRequest, res) => {
+  async (req: AuthRequest, res: Response) => {
     try {
       const { username, email, password, role } = req.body;
 
@@ -65,7 +65,7 @@ router.put(
   "/:id",
   authenticateToken,
   requireRole(["admin"]),
-  async (req: AuthRequest, res) => {
+  async (req: AuthRequest, res: Response) => {
     try {
       const { username, email, role, isActive, profile } = req.body;
 
@@ -91,7 +91,7 @@ router.delete(
   "/:id",
   authenticateToken,
   requireRole(["admin"]),
-  async (req: AuthRequest, res) => {
+  async (req: AuthRequest, res: Response) => {
     try {
       const user = await User.findByIdAndDelete(req.params.id);
 

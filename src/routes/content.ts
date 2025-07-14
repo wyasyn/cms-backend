@@ -1,11 +1,11 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import Content from "../models/Content";
 import { authenticateToken, AuthRequest } from "../middlewares/auth";
 
 const router = Router();
 
 // Get page content (public)
-router.get("/:page", async (req, res) => {
+router.get("/:page", async (req: Request, res: Response) => {
   try {
     const content = await Content.findOne({
       page: req.params.page,
@@ -23,7 +23,7 @@ router.get("/:page", async (req, res) => {
 });
 
 // Get all pages (admin/editor)
-router.get("/", authenticateToken, async (req: AuthRequest, res) => {
+router.get("/", authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const contents = await Content.find({})
       .populate("lastEditedBy", "username")
@@ -36,25 +36,29 @@ router.get("/", authenticateToken, async (req: AuthRequest, res) => {
 });
 
 // Update page content (admin/editor)
-router.put("/:page", authenticateToken, async (req: AuthRequest, res) => {
-  try {
-    const { data, seo, isPublished } = req.body;
+router.put(
+  "/:page",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { data, seo, isPublished } = req.body;
 
-    const content = await Content.findOneAndUpdate(
-      { page: req.params.page },
-      {
-        data,
-        seo,
-        isPublished,
-        lastEditedBy: req.user!._id,
-      },
-      { upsert: true, new: true, runValidators: true }
-    ).populate("lastEditedBy", "username");
+      const content = await Content.findOneAndUpdate(
+        { page: req.params.page },
+        {
+          data,
+          seo,
+          isPublished,
+          lastEditedBy: req.user!._id,
+        },
+        { upsert: true, new: true, runValidators: true }
+      ).populate("lastEditedBy", "username");
 
-    res.json(content);
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
+      res.json(content);
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
   }
-});
+);
 
 export default router;
